@@ -14,6 +14,7 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=12)
 
     UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", "uploads")
-    MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 MB upload limit
+    MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 MB
 
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
