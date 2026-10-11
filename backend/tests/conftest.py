@@ -2,13 +2,13 @@ import os
 import pytest
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-os.environ["SECRET_KEY"] = "test-secret"
-os.environ["JWT_SECRET_KEY"] = "test-jwt-secret"
+os.environ["SECRET_KEY"] = "test-secret-key-at-least-32-bytes!!"
+os.environ["JWT_SECRET_KEY"] = "test-jwt-secret-key-32bytes-min!!"
 os.environ.pop("GEMINI_API_KEY", None)
 
 from app import create_app
 from app.extensions import db
-from app.models import User, Persona
+from app.models import Persona
 
 
 @pytest.fixture()
@@ -18,6 +18,8 @@ def app():
         {
             "TESTING": True,
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "SECRET_KEY": "test-secret-key-at-least-32-bytes!!",
+            "JWT_SECRET_KEY": "test-jwt-secret-key-32bytes-min!!",
         }
     )
     with application.app_context():
