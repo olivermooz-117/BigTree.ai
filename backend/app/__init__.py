@@ -8,6 +8,27 @@ from app.extensions import db, migrate, jwt, socketio
 from app.utils import ApiError
 
 
+def _allowed_origins(app):
+    """Read explicit frontend origins; never enable wildcard CORS in production."""
+    configured = app.config.get("CORS_ORIGINS", "")
+    if isinstance(configured, (list, tuple)):
+        origins = [str(origin).strip() for origin in configured if str(origin).strip()]
+    else:
+        origins = [origin.strip() for origin in str(configured).split(",") if origin.strip()]
+
+    if not origins and not app.config.get("TESTING", False):
+        # Local development only. Production should set CORS_ORIGINS explicitly.
+        is_production = (
+            os.getenv("FLASK_ENV", "").lower() == "production"
+            or os.getenv("ENV", "").lower() == "production"
+        )
+        if is_production:
+            raise RuntimeError("CORS_ORIGINS must be set in production")
+        origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+    return origins
+
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -15,12 +36,13 @@ def create_app(config_class=Config):
     app.config["UPLOAD_FOLDER"] = os.path.abspath(app.config["UPLOAD_FOLDER"])
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    origins = _allowed_origins(app)
+    CORS(app, resources={r"/*": {"origins": origins}})
+    socketio.init_app(app, cors_allowed_origins=origins)
 
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    socketio.init_app(app, cors_allowed_origins="*")
 
     @jwt.unauthorized_loader
     def _unauthorized(reason):

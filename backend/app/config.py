@@ -31,6 +31,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=12)
 
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "")
     UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", "uploads")
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
