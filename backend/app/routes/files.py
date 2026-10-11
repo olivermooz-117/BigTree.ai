@@ -13,21 +13,20 @@ files_bp = Blueprint("files", __name__)
 
 ALLOWED_EXTENSIONS = {
     "png", "jpg", "jpeg", "gif", "webp",
-    "pdf", "txt", "md", "csv", "doc", "docx",
-    "mp3", "wav", "mp4",
+    "pdf", "txt", "md", "csv", "json",
+    "doc", "docx", "xls", "xlsx",
 }
 
 
-def _folder(project_id):
-    return os.path.join(current_app.config["UPLOAD_FOLDER"], str(project_id))
+def _allowed(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @files_bp.get("/projects/<int:project_id>/files")
 @jwt_required()
 def list_files(project_id):
     project, _ = get_project_for_member(project_id, current_user_id())
-    files = sorted(project.files, key=lambda f: f.created_at, reverse=True)
-    return jsonify([f.to_dict() for f in files])
+    return jsonify([f.to_dict() for f in project.files])
 
 
 @files_bp.post("/projects/<int:project_id>/files")
@@ -36,27 +35,30 @@ def upload_file(project_id):
     uid = current_user_id()
     get_project_for_member(project_id, uid)
 
-    upload = request.files.get("file")
-    if not upload or not upload.filename:
-        raise ApiError("No file provided (use form field 'file')", 400)
+    if "file" not in request.files:
+        raise ApiError("No file part", 400)
+    file = request.files["file"]
+    if not file or not file.filename:
+        raise ApiError("No selected file", 400)
+    if not _allowed(file.filename):
+        raise ApiError("File type not allowed", 400)
 
-    ext = upload.filename.rsplit(".", 1)[-1].lower() if "." in upload.filename else ""
-    if ext not in ALLOWED_EXTENSIONS:
-        raise ApiError(f"File type '.{ext}' is not allowed", 400)
-
-    stored_name = f"{uuid.uuid4().hex}.{ext}"
-    folder = _folder(project_id)
+    original = secure_filename(file.filename)
+    ext = original.rsplit(".", 1)[1].lower()
+    stored = f"{uuid.uuid4().hex}.{ext}"
+    folder = current_app.config["UPLOAD_FOLDER"]
     os.makedirs(folder, exist_ok=True)
-    path = os.path.join(folder, stored_name)
-    upload.save(path)
+    path = os.path.join(folder, stored)
+    file.save(path)
+    size = os.path.getsize(path)
 
     record = ProjectFile(
         project_id=project_id,
         uploader_id=uid,
-        filename=secure_filename(upload.filename) or stored_name,
-        stored_name=stored_name,
-        mime_type=upload.mimetype,
-        size=os.path.getsize(path),
+        filename=original,
+        url=stored,
+        mime_type=file.mimetype or "application/octet-stream",
+        size=size,
     )
     db.session.add(record)
     db.session.commit()
@@ -70,9 +72,10 @@ def download_file(file_id):
     if not record:
         raise ApiError("File not found", 404)
     get_project_for_member(record.project_id, current_user_id())
+    folder = current_app.config["UPLOAD_FOLDER"]
     return send_from_directory(
-        _folder(record.project_id),
-        record.stored_name,
+        folder,
+        record.url,
         as_attachment=True,
         download_name=record.filename,
     )
@@ -85,13 +88,13 @@ def delete_file(file_id):
     record = db.session.get(ProjectFile, file_id)
     if not record:
         raise ApiError("File not found", 404)
-    _, member = get_project_for_member(record.project_id, uid)
+    project, member = get_project_for_member(record.project_id, uid)
     if record.uploader_id != uid and member.role != "owner":
         raise ApiError("You can only delete your own files", 403)
 
-    path = os.path.join(_folder(record.project_id), record.stored_name)
-    if os.path.exists(path):
+    path = os.path.join(current_app.config["UPLOAD_FOLDER"], record.url)
+    if os.path.isfile(path):
         os.remove(path)
     db.session.delete(record)
     db.session.commit()
-    return "", 204
+    return jsonify(ok=True)

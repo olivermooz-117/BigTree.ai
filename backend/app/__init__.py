@@ -22,9 +22,21 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     socketio.init_app(app, cors_allowed_origins="*")
 
-    from app import models  # noqa: F401  (registers models for migrations)
+    @jwt.unauthorized_loader
+    def _unauthorized(reason):
+        return jsonify(error="Missing or invalid token", detail=reason), 401
+
+    @jwt.invalid_token_loader
+    def _invalid(reason):
+        return jsonify(error="Invalid token", detail=reason), 401
+
+    @jwt.expired_token_loader
+    def _expired(jwt_header, jwt_payload):
+        return jsonify(error="Token has expired"), 401
+
+    from app import models  # noqa: F401
     from app.routes import register_blueprints
-    from app import sockets  # noqa: F401  (registers socket handlers)
+    from app import sockets  # noqa: F401
     from app.seed import register_cli
 
     register_blueprints(app)

@@ -78,31 +78,22 @@ def chat(project_id):
 def list_conversations(project_id):
     uid = current_user_id()
     get_project_for_member(project_id, uid)
-    conversations = (
+    rows = (
         AIConversation.query.filter_by(project_id=project_id, user_id=uid)
         .order_by(AIConversation.id.desc())
         .all()
     )
-    return jsonify([c.to_dict() for c in conversations])
+    return jsonify([c.to_dict() for c in rows])
 
 
-@ai_bp.get("/ai/conversations/<int:conversation_id>/messages")
+@ai_bp.get("/projects/<int:project_id>/ai/conversations/<int:conversation_id>/messages")
 @jwt_required()
-def conversation_messages(conversation_id):
+def list_messages(project_id, conversation_id):
     uid = current_user_id()
-    conversation = db.session.get(AIConversation, conversation_id)
-    if not conversation or conversation.user_id != uid:
+    get_project_for_member(project_id, uid)
+    conversation = AIConversation.query.filter_by(
+        id=conversation_id, project_id=project_id, user_id=uid
+    ).first()
+    if not conversation:
         raise ApiError("Conversation not found", 404)
     return jsonify([m.to_dict() for m in conversation.messages])
-
-
-@ai_bp.delete("/ai/conversations/<int:conversation_id>")
-@jwt_required()
-def delete_conversation(conversation_id):
-    uid = current_user_id()
-    conversation = db.session.get(AIConversation, conversation_id)
-    if not conversation or conversation.user_id != uid:
-        raise ApiError("Conversation not found", 404)
-    db.session.delete(conversation)
-    db.session.commit()
-    return "", 204

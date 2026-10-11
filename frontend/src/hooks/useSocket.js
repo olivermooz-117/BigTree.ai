@@ -8,30 +8,17 @@ export default function useSocket(projectId, onMessage) {
 
   useEffect(() => {
     if (!projectId) return;
-
     const token = localStorage.getItem("token");
-    const url = import.meta.env.VITE_SOCKET_URL || undefined; // same origin → proxy
-    const socket = io(url, {
-      path: "/socket.io",
-      auth: { token },
-    });
+    const url = import.meta.env.VITE_SOCKET_URL || undefined;
+    const socket = io(url, { path: "/socket.io", auth: { token } });
     socketRef.current = socket;
 
     socket.on("connect", () => {
       socket.emit("join_project", { project_id: Number(projectId) });
     });
-
-    socket.on("new_message", (msg) => {
-      onMessageRef.current?.(msg);
-    });
-
-    socket.on("error", (payload) => {
-      console.warn("socket error", payload);
-    });
-
-    socket.on("connect_error", (err) => {
-      console.warn("socket connect_error", err.message);
-    });
+    socket.on("new_message", (msg) => onMessageRef.current?.(msg));
+    socket.on("error", (payload) => console.warn("socket error", payload));
+    socket.on("connect_error", (err) => console.warn("socket connect_error", err.message));
 
     return () => {
       socket.emit("leave_project", { project_id: Number(projectId) });
@@ -40,12 +27,15 @@ export default function useSocket(projectId, onMessage) {
     };
   }, [projectId]);
 
-  const send = useCallback((body) => {
-    socketRef.current?.emit("send_message", {
-      project_id: Number(projectId),
-      body,
-    });
-  }, [projectId]);
+  const send = useCallback(
+    (body) => {
+      socketRef.current?.emit("send_message", {
+        project_id: Number(projectId),
+        body,
+      });
+    },
+    [projectId]
+  );
 
   return { send };
 }

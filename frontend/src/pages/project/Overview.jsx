@@ -41,7 +41,6 @@ export default function Overview() {
   };
 
   if (!project) return null;
-
   const members = project.members || [];
 
   return (
@@ -50,7 +49,6 @@ export default function Overview() {
       <p className="muted" style={{ marginBottom: "1.25rem" }}>
         {project.description || "No description yet."}
       </p>
-
       <div className="card" style={{ marginBottom: "1.25rem" }}>
         <div style={{ fontWeight: 600, marginBottom: "0.75rem" }}>
           Members ({members.length || project.member_count || 0})
@@ -58,7 +56,7 @@ export default function Overview() {
         {members.length > 0 ? (
           <ul style={{ listStyle: "none", marginBottom: "1rem" }}>
             {members.map((m) => (
-              <li key={m.user?.id || m.user_id} style={{ padding: "0.35rem 0" }}>
+              <li key={m.user?.id || m.email} style={{ padding: "0.35rem 0" }}>
                 {m.user?.name || m.user?.email}{" "}
                 <span className="muted">({m.role})</span>
               </li>
@@ -66,10 +64,9 @@ export default function Overview() {
           </ul>
         ) : (
           <p className="muted" style={{ marginBottom: "1rem" }}>
-            Member list not loaded — invite someone below to collaborate.
+            Invite a teammate to collaborate in real time.
           </p>
         )}
-
         <form onSubmit={handleInvite} style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
           <input
             type="email"

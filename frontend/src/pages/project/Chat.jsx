@@ -91,11 +91,7 @@ export default function Chat() {
         <div ref={bottomRef} />
       </div>
       <form onSubmit={handleSend} style={{ display: "flex", gap: "0.5rem" }}>
-        <input
-          placeholder="Message the team…"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
+        <input placeholder="Message the team…" value={text} onChange={(e) => setText(e.target.value)} />
         <button type="submit">Send</button>
       </form>
     </div>

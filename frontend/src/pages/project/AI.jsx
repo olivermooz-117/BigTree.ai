@@ -65,7 +65,6 @@ export default function AI() {
       });
       setConversationId(data.conversation.id);
       setMessages((m) => [...m, { role: "assistant", content: data.reply.content }]);
-      // refresh sidebar list
       const { data: convos } = await aiApi.listConversations(id);
       setConversations(convos);
     } catch (err) {
@@ -79,7 +78,6 @@ export default function AI() {
 
   return (
     <div style={{ display: "flex", gap: "1rem", height: "calc(100vh - 180px)" }}>
-      {/* Sidebar */}
       <div className="card" style={{ width: 200, overflowY: "auto", flexShrink: 0 }}>
         <button type="button" onClick={newChat} style={{ width: "100%", marginBottom: "0.75rem" }}>
           + New chat
@@ -102,8 +100,6 @@ export default function AI() {
           </button>
         ))}
       </div>
-
-      {/* Main */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <h2 className="page-title" style={{ margin: 0 }}>AI co-pilot</h2>
@@ -117,7 +113,6 @@ export default function AI() {
             ))}
           </select>
         </div>
-
         <div className="card" style={{ flex: 1, overflowY: "auto", marginBottom: "1rem" }}>
           {messages.length === 0 && (
             <p className="muted">Ask the AI to draft, brainstorm, or summarize using this project’s content.</p>
@@ -142,9 +137,7 @@ export default function AI() {
           {sending && <Loading text="Thinking…" />}
           <div ref={bottomRef} />
         </div>
-
         {error && <p className="error" style={{ marginBottom: "0.5rem" }}>{error}</p>}
-
         <form onSubmit={handleSend} style={{ display: "flex", gap: "0.5rem" }}>
           <input
             placeholder="Ask anything about this project…"
