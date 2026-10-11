@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BigTree.ai — Grow smarter with AI</title>
+<meta name="description" content="BigTree.ai helps teams turn data into decisions with fast, secure, easy-to-use AI. Start free today.">
+<meta property="og:title" content="BigTree.ai — Grow smarter with AI">
+<meta property="og:description" content="Turn data into decisions with fast, secure, easy-to-use AI.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0b1f17">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav" id="top">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top"><img src="favicon.svg" alt="" width="28" height="28"> BigTree<span>.ai</span></a>
+    <button class="burger" aria-label="Menu" aria-expanded="false" aria-controls="links">☰</button>
+    <nav id="links" class="links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#use-cases">Use cases</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-sm" href="#start">Get started</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap hero-in">
+      <p class="pill">✨ Now in early access</p>
+      <h1>Grow smarter with <em>AI that works</em> the way you do.</h1>
+      <p class="lead">BigTree.ai turns your data into clear answers and automated action — no complex setup, no data-science degree required.</p>
+      <div class="cta">
+        <a class="btn" href="#start">Start free</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <ul class="trust">
+        <li>🔒 Secure by design</li><li>⚡ Setup in minutes</li><li>🔌 API-first</li><li>🤝 Built for teams</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="features" class="sec">
+    <div class="wrap">
+      <h2>Everything you need to move faster</h2>
+      <p class="sub">Powerful where it matters, simple everywhere else.</p>
+      <div class="grid">
+        <article class="card reveal"><span class="ic">🧠</span><h3>Smart insights</h3><p>Ask questions in plain language and get clear, actionable answers from your data.</p></article>
+        <article class="card reveal"><span class="ic">⚙️</span><h3>Workflow automation</h3><p>Automate repetitive tasks and let your team focus on work that matters.</p></article>
+        <article class="card reveal"><span class="ic">🔌</span><h3>Easy integrations</h3><p>Connect your tools through a clean REST API and ready-made connectors.</p></article>
+        <article class="card reveal"><span class="ic">🔒</span><h3>Enterprise-grade security</h3><p>Encryption in transit and at rest, with role-based access control.</p></article>
+        <article class="card reveal"><span class="ic">📊</span><h3>Live dashboards</h3><p>Track what's happening in real time with clean, shareable dashboards.</p></article>
+        <article class="card reveal"><span class="ic">💬</span><h3>Human support</h3><p>Real people ready to help whenever you get stuck.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="sec alt">
+    <div class="wrap">
+      <h2>Up and running in three steps</h2>
+      <ol class="steps">
+        <li class="reveal"><b>1</b><h3>Connect</h3><p>Link your data sources or upload a file.</p></li>
+        <li class="reveal"><b>2</b><h3>Ask</h3><p>Describe what you want to know or automate.</p></li>
+        <li class="reveal"><b>3</b><h3>Act</h3><p>Get results, share them, and let BigTree handle the rest.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="use-cases" class="sec">
+    <div class="wrap">
+      <h2>Built for how you work</h2>
+      <div class="grid g3">
+        <article class="card reveal"><h3>Startups</h3><p>Ship faster with AI doing the heavy lifting from day one.</p></article>
+        <article class="card reveal"><h3>Operations teams</h3><p>Cut manual work and keep processes running smoothly.</p></article>
+        <article class="card reveal"><h3>Developers</h3><p>Add AI features to your product through a simple API.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="sec alt">
+    <div class="wrap narrow">
+      <h2>Frequently asked questions</h2>
+      <details><summary>Is there a free plan?</summary><p>Yes — you can start free and upgrade when you're ready.</p></details>
+      <details><summary>Is my data safe?</summary><p>Your data is encrypted in transit and at rest, and never shared without your permission.</p></details>
+      <details><summary>Do I need technical skills?</summary><p>No. If you can write a sentence, you can use BigTree.ai. Developers also get a full API.</p></details>
+      <details><summary>How do I get help?</summary><p>Contact our support team any time using the form below.</p></details>
+    </div>
+  </section>
+
+  <section id="start" class="sec cta-sec">
+    <div class="wrap narrow center">
+      <h2>Ready to grow with BigTree.ai?</h2>
+      <p class="sub">Join the early-access list and be first to know when we launch.</p>
+      <form id="lead" class="lead-form" novalidate>
+        <label class="sr" for="email">Email address</label>
+        <input id="email" type="email" placeholder="you@company.com" required autocomplete="email">
+        <button class="btn" type="submit">Join early access</button>
+      </form>
+      <p id="msg" class="msg" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p>© <span id="yr"></span> BigTree.ai. All rights reserved.</p>
+    <nav><a href="#features">Features</a><a href="#faq">FAQ</a><a href="#start">Contact</a></nav>
+  </div>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
