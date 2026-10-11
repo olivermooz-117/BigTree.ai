@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import create_access_token, jwt_required
+from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
 from app.models import User
@@ -19,7 +20,11 @@ def register():
     user = User(name=data["name"].strip(), email=email)
     user.set_password(data["password"])
     db.session.add(user)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        raise ApiError("Email already registered", 409)
 
     token = create_access_token(identity=str(user.id))
     return jsonify(user=user.to_dict(), access_token=token), 201

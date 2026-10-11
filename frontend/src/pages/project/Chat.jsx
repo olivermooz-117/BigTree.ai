@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import * as chatApi from "../../api/chat";
@@ -11,19 +11,35 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
+  const historyReady = useRef(false);
+  const pending = useRef([]);
   const bottomRef = useRef(null);
 
-  const { send } = useSocket(id, (msg) => {
-    setMessages((prev) => {
-      if (prev.some((m) => m.id === msg.id)) return prev;
-      return [...prev, msg];
-    });
-  });
+  const onMessage = useCallback((msg) => {
+    if (!historyReady.current) {
+      pending.current.push(msg);
+      return;
+    }
+    setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+  }, []);
+
+  const { send } = useSocket(id, onMessage);
 
   useEffect(() => {
+    historyReady.current = false;
+    pending.current = [];
+    setLoading(true);
     chatApi
       .listMessages(id)
-      .then(({ data }) => setMessages(data))
+      .then(({ data }) => {
+        const merged = [...data];
+        for (const m of pending.current) {
+          if (!merged.some((x) => x.id === m.id)) merged.push(m);
+        }
+        merged.sort((a, b) => a.id - b.id);
+        setMessages(merged);
+        historyReady.current = true;
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
