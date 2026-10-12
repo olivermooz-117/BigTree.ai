@@ -1,17 +1,20 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from app.services import ai_service
+from app.services.ai_service import AIResult
 
 
 def test_generate_reply_without_api_key(app):
     with app.app_context():
         app.config["GEMINI_API_KEY"] = ""
-        text = ai_service.generate_reply(
+        result = ai_service.generate(
             [("user", "Hello")],
             "You are helpful.",
             "Project title: Demo",
         )
-    assert "isn't configured" in text or "GEMINI_API_KEY" in text
+    assert isinstance(result, AIResult)
+    assert result.ok is False
+    assert "isn't configured" in result.text or "GEMINI_API_KEY" in result.text
 
 
 def test_generate_reply_mocked(app):
@@ -25,9 +28,10 @@ def test_generate_reply_mocked(app):
         app.config["GEMINI_API_KEY"] = "fake-key-for-test"
         app.config["GEMINI_MODEL"] = "gemini-3.8-flash"
         with patch("google.genai.Client", return_value=fake_client):
-            text = ai_service.generate_reply(
+            result = ai_service.generate(
                 [("user", "Hi")],
                 "System",
                 "Context",
             )
-    assert text == "Mocked answer"
+    assert result.ok is True
+    assert result.text == "Mocked answer"

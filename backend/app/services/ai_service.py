@@ -1,4 +1,14 @@
+"""Gemini-backed AI co-pilot service.
+
+Public API used by routes:
+  - build_project_context(project) -> str
+  - generate(history, persona_prompt, context) -> AIResult
+"""
+
+from __future__ import annotations
+
 import logging
+from dataclasses import dataclass
 
 from flask import current_app
 
@@ -19,9 +29,17 @@ BASE_RULES = (
 )
 
 
-def build_project_context(project):
+@dataclass(frozen=True)
+class AIResult:
+    """ok=False means the provider failed or is not configured — do not save as a reply."""
+
+    text: str
+    ok: bool = True
+
+
+def build_project_context(project) -> str:
     parts = [f"Project title: {project.title}"]
-    if project.description:
+    if getattr(project, "description", None):
         parts.append(f"Project description: {project.description}")
 
     used = sum(len(p) for p in parts)
@@ -40,17 +58,22 @@ def build_project_context(project):
     return "\n".join(parts)
 
 
-def generate_reply(history, persona_prompt, context):
-    """history: list of (role, text) tuples, role is 'user' or 'assistant'."""
+def generate(history, persona_prompt, context) -> AIResult:
+    """history: list of (role, text) with role 'user' or 'assistant'."""
     api_key = (current_app.config.get("GEMINI_API_KEY") or "").strip()
     if not api_key:
-        return (
+        return AIResult(
             "The AI co-pilot isn't configured yet. Add GEMINI_API_KEY to your "
-            ".env file and restart the server."
+            ".env file and restart the server.",
+            ok=False,
         )
 
     system = "\n\n".join(
-        [persona_prompt or DEFAULT_SYSTEM, BASE_RULES, "Project context:\n" + (context or "")]
+        [
+            persona_prompt or DEFAULT_SYSTEM,
+            BASE_RULES,
+            "Project context:\n" + (context or ""),
+        ]
     )
 
     try:
@@ -70,8 +93,21 @@ def generate_reply(history, persona_prompt, context):
             contents=contents,
             config=types.GenerateContentConfig(system_instruction=system),
         )
-        text = (response.text or "").strip()
-        return text or "I couldn't generate a response. Try rephrasing your message."
+        text = (getattr(response, "text", None) or "").strip()
+        if not text:
+            return AIResult(
+                "I couldn't generate a response. Try rephrasing your message.",
+                ok=False,
+            )
+        return AIResult(text, ok=True)
     except Exception:
         log.exception("AI generation failed")
-        return "Something went wrong while contacting the AI service. Please try again."
+        return AIResult(
+            "Something went wrong while contacting the AI service. Please try again.",
+            ok=False,
+        )
+
+
+def generate_reply(history, persona_prompt, context) -> str:
+    """Backward-compatible helper used by older unit tests."""
+    return generate(history, persona_prompt, context).text
