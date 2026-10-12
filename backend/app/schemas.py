@@ -28,7 +28,7 @@ class NoteSchema(Schema):
 
 
 class AIChatSchema(Schema):
-    message = fields.Str(required=True, validate=validate.Length(min=1, max=8000))
+    message = fields.Str(required=True, validate=validate.Length(min=1, max=4000))
     persona_id = fields.Int(load_default=None, allow_none=True)
     conversation_id = fields.Int(load_default=None, allow_none=True)
 

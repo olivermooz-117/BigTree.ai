@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 from app.config import Config
+from app.production_checks import validate_production_config
 from app.extensions import db, migrate, jwt, socketio
 from app.utils import ApiError
 
@@ -32,6 +33,7 @@ def _allowed_origins(app):
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    validate_production_config(app)
 
     app.config["UPLOAD_FOLDER"] = os.path.abspath(app.config["UPLOAD_FOLDER"])
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)

@@ -5,7 +5,24 @@ from dotenv import load_dotenv
 load_dotenv()
 
 _base = os.path.abspath(os.path.dirname(__file__))
-_is_prod = os.getenv("FLASK_ENV") == "production" or os.getenv("ENV") == "production"
+
+
+def is_production():
+    """True when ENV or FLASK_ENV is set to 'production' (read at call time)."""
+    return (
+        os.getenv("FLASK_ENV", "").lower() == "production"
+        or os.getenv("ENV", "").lower() == "production"
+    )
+
+
+def _int_env(name, default):
+    try:
+        return int(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
+_is_prod = is_production()
 
 
 class Config:
@@ -37,3 +54,9 @@ class Config:
 
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
+    # AI guardrails (0 disables a rate limit)
+    AI_TIMEOUT_SECONDS = _int_env("AI_TIMEOUT_SECONDS", 30)
+    AI_MAX_OUTPUT_TOKENS = _int_env("AI_MAX_OUTPUT_TOKENS", 4096)
+    AI_RATE_LIMIT_PER_MINUTE = _int_env("AI_RATE_LIMIT_PER_MINUTE", 10)
+    AI_RATE_LIMIT_PER_DAY = _int_env("AI_RATE_LIMIT_PER_DAY", 200)

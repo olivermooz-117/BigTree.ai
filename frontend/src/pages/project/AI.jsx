@@ -70,7 +70,8 @@ export default function AI() {
     } catch (err) {
       const msg = err.response?.data?.error || err.message || "Something went wrong";
       setError(msg);
-      setMessages((m) => [...m, { role: "assistant", content: `Error: ${msg}` }]);
+      setMessages((m) => m.slice(0, -1)); // the failed message was not saved
+      setInput(text); // give the text back so it can be resent
     } finally {
       setSending(false);
     }
