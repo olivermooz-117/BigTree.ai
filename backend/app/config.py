@@ -53,7 +53,7 @@ class Config:
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 
     # AI guardrails (0 disables a rate limit)
     AI_TIMEOUT_SECONDS = _int_env("AI_TIMEOUT_SECONDS", 30)
